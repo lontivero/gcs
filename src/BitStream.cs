@@ -1,144 +1,157 @@
 ﻿using System;
+using System.Collections;
 
 namespace GolombCodeFilterSet
 {
 	class BitStream
 	{
-		private byte[] _buffer;
-		private int _remainCount;
+		private BitArray _buffer;
+		private int _readPos;
+		private int _writePos;
 
 		public BitStream()
-			: this(new byte[0])
+			:this(new BitArray(0))
 		{
 		}
 
-		public BitStream(byte[] buffer)
+		public BitStream(byte[] data)
+			: this( new BitArray(data))
 		{
-			var newBuffer = new byte[buffer.Length];
-			Buffer.BlockCopy(buffer, 0, newBuffer, 0, buffer.Length);
-			_buffer = newBuffer;
-			_remainCount = buffer.Length == 0 ? 0 : 8;
 		}
 
-		private void AddZeroByte()
+		public BitStream(BitArray bitArray)
 		{
-			var newBuffer = new byte[_buffer.Length + 1];
-			Buffer.BlockCopy(_buffer, 0, newBuffer, 0, _buffer.Length);
-			_buffer = newBuffer;
-		}
-
-		private void EnsureCapacity()
-		{
-			if (_remainCount == 0)
-			{
-				AddZeroByte();
-				_remainCount = 8;
-			}
-		}
-
-		public void WriteBit(bool bit)
-		{
-			EnsureCapacity();
-			if (bit)
-			{
-				var lastIndex = _buffer.Length - 1;
-				_buffer[lastIndex] |= (byte)(1 << (_remainCount - 1));
-			}
-			_remainCount--;
-		}
-
-		public void WriteByte(byte b)
-		{
-			EnsureCapacity();
-
-			var lastIndex = _buffer.Length - 1;
-			_buffer[lastIndex] |= (byte)(b >> (8 - _remainCount));
-
-			AddZeroByte();
-			_buffer[lastIndex + 1] = (byte)(b << _remainCount);
+			_buffer = bitArray;
+			_readPos = 0;
+			_writePos = 0;
 		}
 
 		public bool ReadBit()
 		{
-			if (_buffer.Length == 0)
-				throw new InvalidOperationException("The stream is empty");
+			if (_buffer.Length == _readPos - 1)
+				throw new InvalidOperationException("End of stream reached");
 
-			if(_remainCount == 0)
-			{
-				if (_buffer.Length == 1) {
-					throw new InvalidOperationException("End of stream reached");
-				}
-				var newBuffer = new byte[_buffer.Length - 1];
-				Buffer.BlockCopy(_buffer, 1, newBuffer, 0, _buffer.Length - 1);
-				_buffer = newBuffer;
-				_remainCount = 8;
-			}
-
-			var bit = _buffer[0] & 0x80;
-			_buffer[0] <<= 1;
-			_remainCount--;
-
-			return bit != 0;
+			return _buffer[_readPos++];
 		}
 
 		public ulong ReadBits(int count)
 		{
+			if (count > 64 || count < 1)
+				throw new ArgumentOutOfRangeException(nameof(count), "the value has to be in the range 1, 64");
 			var val = 0UL;
-			while(count >= 8)
-			{
-				val <<= 8;
-				val |= (ulong)ReadByte();
-				count -= 8;
-			}
-
-			while(count > 0)
+			for (var i = 0; i < count; i++)
 			{
 				val <<= 1;
 				val |= ReadBit() ? 1UL : 0UL;
-				count--;
 			}
 			return val;
 		}
 
-		public byte ReadByte()
+		public void WriteBit(bool bit)
 		{
-			if (_buffer.Length == 0)
-				throw new InvalidOperationException("The stream is empty");
+			if (_buffer.Length == _writePos)
+				_buffer.Length++;
 
-			if (_remainCount == 0)
+			_buffer[_writePos++] = bit;
+		}
+
+		public void WriteBits(ulong data, byte count)
+		{
+			data <<= (64 - count);
+			while (count > 0)
 			{
-				if (_buffer.Length == 1)
-				{
-					throw new InvalidOperationException("End of stream reached");
-				}
-				var newBuffer = new byte[_buffer.Length - 1];
-				Buffer.BlockCopy(_buffer, 1, newBuffer, 0, _buffer.Length - 1);
-				_buffer = newBuffer;
-				_remainCount = 8;
+				var bit = data >> (64 - 1);
+				WriteBit(bit == 1);
+				data <<= 1;
+				count--;
 			}
+		}
 
-			var b = _buffer[0];
-			var newBuffer1 = new byte[_buffer.Length - 1];
-			Buffer.BlockCopy(_buffer, 1, newBuffer1, 0, _buffer.Length - 1);
-			_buffer = newBuffer1;
-			if (_remainCount == 8)
+		public void WriteByte(byte b)
+		{
+			for (var i = 7; i >= 0; i--)
 			{
-				return b;
+				WriteBit((b & (1 << i)) == 1);
 			}
-
-			if (_buffer.Length == 0)
-			{
-				throw new InvalidOperationException("End of stream reached");
-			}
-
-			b |= (byte)(_buffer[0] >> _remainCount);
-			_buffer[0] <<= (8 - _remainCount);
-			return b;
 		}
 
 		public byte[] ToByteArray()
 		{
-			return _buffer;
+			var byteArray = new byte[(int)Math.Ceiling((double)_buffer.Length / 8)];
+			_buffer.CopyTo(byteArray, 0);
+			return byteArray;
+		}
+	}
+
+	class GRCodedStreamWriter
+	{
+		private BitStream _stream;
+		private byte _P;
+		private ulong _modP;
+		private ulong _lastValue;
+
+		public GRCodedStreamWriter(BitStream stream, byte P)
+		{
+			_stream = stream;
+			_P = P;
+			_modP = (1UL << P);
+			_lastValue = 0UL;
+		}
+
+		public void Write(ulong value)
+		{
+			var diff = value - _lastValue;
+
+			var remainder = diff & (_modP - 1);
+			var quotient = (diff - remainder) >> _P;
+
+			while (quotient > 0)
+			{
+				_stream.WriteBit(true);
+				quotient--;
+			}
+			_stream.WriteBit(false);
+			_stream.WriteBits(remainder, _P);
+			_lastValue = value;
+		}
+	}
+
+	class GRCodedStreamReader
+	{
+		private BitStream _stream;
+		private byte _P;
+		private ulong _modP;
+		private ulong _lastValue;
+
+		public GRCodedStreamReader(BitStream stream, byte P)
+		{
+			_stream = stream;
+			_P = P;
+			_modP = (1UL << P);
+			_lastValue = 0UL;
+		}
+
+		public ulong Read()
+		{
+			var currentValue = ReadUInt64();
+			currentValue += _lastValue;
+			_lastValue = currentValue;
+			return currentValue;
+		}
+
+		private ulong ReadUInt64()
+		{
+			var count = 0UL;
+			var bit = _stream.ReadBit();
+			while (bit)
+			{
+				count++;
+				bit = _stream.ReadBit();
+			}
+
+			var remainder = _stream.ReadBits(_P);
+			var value = (count * _modP) + remainder;
+			return value;
 		}
 	}
 }
