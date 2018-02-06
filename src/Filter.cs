@@ -61,13 +61,12 @@ namespace GolombCodeFilterSet
 				values.Add(value);
 			}
 
+			values.Sort();
 			return values;
 		}
 
 		private static byte[] Compress(List<ulong> values, byte P)
 		{
-			values.Sort();
-
 			var bitStream = new BitStream();
 			var sw = new GRCodedStreamWriter(bitStream, P);
 
@@ -105,6 +104,43 @@ namespace GolombCodeFilterSet
 				return false;
 			}
 			return false;
+		}
+
+		public bool MatchAny(IEnumerable<byte[]> data, byte[] key)
+		{
+			if (data == null || !data.Any())
+				throw new ArgumentException("data can not be null or empty array", nameof(data));
+
+			var hs = ConstructHashedSet(P, key, data);
+
+			var lastValue1 = 0UL;
+			var lastValue2 = hs[0];
+			var i = 1;
+
+			var bitStream = new BitStream(Data);
+			var sr = new GRCodedStreamReader(bitStream, P);
+
+			while (lastValue1 != lastValue2)
+			{
+				if (lastValue1 > lastValue2)
+				{
+					if (i < hs.Count)
+					{
+						lastValue2 = hs[i];
+						i++;
+					}
+					else
+					{
+						return false;
+					}
+				}
+				else if (lastValue2 > lastValue1)
+				{
+					var val = sr.Read();
+					lastValue1 = val;
+				}
+			}
+			return true;
 		}
 	}
 }

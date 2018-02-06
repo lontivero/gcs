@@ -26,6 +26,16 @@ namespace GolombCodedFilterSet.UnitTests
 			// The filter should NOT match any extra value
 			Assert.IsFalse(filter.Match(Encoding.ASCII.GetBytes("Porto Alegre"), key));
 			Assert.IsFalse(filter.Match(Encoding.ASCII.GetBytes("Madrid"), key));
+
+			// The filter should match because it has one element indexed: Buenos Aires
+			var otherCities = new[] { "La Paz", "Barcelona", "El Cairo", "Buenos Aires", "Asunción" };
+			var otherNames = from name in otherCities select Encoding.ASCII.GetBytes(name);
+			Assert.IsTrue(filter.MatchAny(otherNames, key));
+
+			// The filter should NOT match because it doesn't have any element indexed
+			var otherCities2 = new[] { "La Paz", "Barcelona", "El Cairo", "Córdoba", "Asunción" };
+			var otherNames2 = from name in otherCities2 select Encoding.ASCII.GetBytes(name);
+			Assert.IsFalse(filter.MatchAny(otherNames2, key));
 		}
 	}
 }
