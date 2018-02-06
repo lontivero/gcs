@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{6EEC7ECC-B83E-410A-87A5-2BE345D0FB52}</ProjectGuid>
-    <OutputType>Library</OutputType>
+    <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>GolombCodedFilterSet.UnitTests</RootNamespace>
     <AssemblyName>GolombCodedFilterSet.UnitTests</AssemblyName>
@@ -36,6 +36,9 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject>GolombCodedFilterSet.UnitTests.BuilderTest</StartupObject>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="BuilderTest.cs" />

@@ -8,6 +8,7 @@ namespace GolombCodeFilterSet
 		private BitArray _buffer;
 		private int _readPos;
 		private int _writePos;
+		private int _count;
 
 		public BitStream()
 			:this(new BitArray(0))
@@ -24,33 +25,56 @@ namespace GolombCodeFilterSet
 			_buffer = bitArray;
 			_readPos = 0;
 			_writePos = 0;
+			_count = _buffer.Length;
 		}
 
 		public bool ReadBit()
 		{
-			if (_buffer.Length == _readPos - 1)
-				throw new InvalidOperationException("End of stream reached");
-
 			return _buffer[_readPos++];
+		}
+
+		public byte ReadByte()
+		{
+			var ret = (byte) 0;
+			ret |= (byte)((_buffer[_readPos++] ? 1 : 0) << 7);
+			ret |= (byte)((_buffer[_readPos++] ? 1 : 0) << 6);
+			ret |= (byte)((_buffer[_readPos++] ? 1 : 0) << 5);
+			ret |= (byte)((_buffer[_readPos++] ? 1 : 0) << 4);
+			ret |= (byte)((_buffer[_readPos++] ? 1 : 0) << 3);
+			ret |= (byte)((_buffer[_readPos++] ? 1 : 0) << 2);
+			ret |= (byte)((_buffer[_readPos++] ? 1 : 0) << 1);
+			ret |= (byte)((_buffer[_readPos++] ? 1 : 0) << 0);
+
+			return ret;
 		}
 
 		public ulong ReadBits(int count)
 		{
-			if (count > 64 || count < 1)
-				throw new ArgumentOutOfRangeException(nameof(count), "the value has to be in the range 1, 64");
 			var val = 0UL;
-			for (var i = 0; i < count; i++)
+			while (count >= 8)
+			{
+				val <<= 8;
+				var b = ReadByte();
+				val |= (ulong) b;
+				count -= 8;
+			}
+
+			while (count > 0)
 			{
 				val <<= 1;
-				val |= ReadBit() ? 1UL : 0UL;
+				val |= _buffer[_readPos++] ? 1UL : 0UL; // ReadBit()
+				count--;
 			}
 			return val;
 		}
 
 		public void WriteBit(bool bit)
 		{
-			if (_buffer.Length == _writePos)
-				_buffer.Length++;
+			if (_count == _writePos)
+			{
+				_count = (_count * 2) + 1;
+				_buffer.Length = _count;
+			}
 
 			_buffer[_writePos++] = bit;
 		}
@@ -58,6 +82,15 @@ namespace GolombCodeFilterSet
 		public void WriteBits(ulong data, byte count)
 		{
 			data <<= (64 - count);
+			while (count >= 8)
+			{
+				var byt = (byte) (data >> (64 - 8));
+				WriteByte(byt);
+
+				data <<= 8;
+				count -= 8;
+			}
+
 			while (count > 0)
 			{
 				var bit = data >> (64 - 1);
@@ -69,15 +102,25 @@ namespace GolombCodeFilterSet
 
 		public void WriteByte(byte b)
 		{
-			for (var i = 7; i >= 0; i--)
+			if (_count  <= _writePos + 8)
 			{
-				WriteBit((b & (1 << i)) == 1);
+				_count += 8;
+				_buffer.Length = _count;
 			}
+
+			WriteBit((b & (1 << 7)) != 0);
+			WriteBit((b & (1 << 6)) != 0);
+			WriteBit((b & (1 << 5)) != 0);
+			WriteBit((b & (1 << 4)) != 0);
+			WriteBit((b & (1 << 3)) != 0);
+			WriteBit((b & (1 << 2)) != 0);
+			WriteBit((b & (1 << 1)) != 0);
+			WriteBit((b & (1 << 0)) != 0);
 		}
 
 		public byte[] ToByteArray()
 		{
-			var byteArray = new byte[(int)Math.Ceiling((double)_buffer.Length / 8)];
+			var byteArray = new byte[(_writePos  + (_writePos-1)) / 8];
 			_buffer.CopyTo(byteArray, 0);
 			return byteArray;
 		}

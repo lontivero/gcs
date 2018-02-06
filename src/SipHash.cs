@@ -20,23 +20,6 @@ namespace GolombCodeFilterSet
 			tmp = 0;
 		}
 
-		public SipHasher Write(ulong data)
-		{
-			ulong v0 = v_0, v1 = v_1, v2 = v_2, v3 = v_3;
-			v3 ^= data;
-			SIPROUND(ref v0, ref v1, ref v2, ref v3);
-			SIPROUND(ref v0, ref v1, ref v2, ref v3);
-			v0 ^= data;
-
-			v_0 = v0;
-			v_1 = v1;
-			v_2 = v2;
-			v_3 = v3;
-
-			count += 8;
-			return this;
-		}
-
 		public SipHasher Write(byte[] data)
 		{
 			ulong v0 = v_0, v1 = v_1, v2 = v_2, v3 = v_3;
