@@ -8,15 +8,6 @@ namespace GolombCodedFilterSet.UnitTests
 	[TestClass]
 	public class BuilderTest
 	{
-		public static void Main()
-		{
-			var testClass = new BuilderTest();
-			for(int i = 0; i< 1000; i++)
-			{
-				testClass.BuildFilterAndMatchValues();
-			}
-		}
-
 		[TestMethod]
 		public void BuildFilterAndMatchValues()
 		{
