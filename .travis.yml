@@ -1,5 +1,5 @@
 language: csharp
-solution: gcs.core.sln
+mono: none
 dotnet: 2.0.0
 
 install:
