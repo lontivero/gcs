@@ -3,9 +3,8 @@ mono: none
 dotnet: 2.0.0
 
 install:
-  - nuget restore gcs.core.sln
+  - dotnet restore gcs.core.sln
 
 script:
  - dotnet build gcs.core.sln
  - dotnet test ./tests/gcs.UnitTests.core.csproj
-
