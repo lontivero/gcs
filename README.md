@@ -1,8 +1,10 @@
 # gcs - Golomb compressed set
 
+[![Build Status](https://travis-ci.org/lontivero/gcs.svg?branch=master)](https://travis-ci.org/lontivero/gcs)
+
 Library for creating and querying Golomb Compressed Sets (GCS), a statistical
-compressed data-structure. The idea behind this implementation is using it in a new 
-kind of Bitcoin light client, similar to SPV clients, that uses GCS instead of bloom 
+compressed data-structure. The idea behind this implementation is using it in a new
+kind of Bitcoin light client, similar to SPV clients, that uses GCS instead of bloom
 filters.
 
 This projects is based on the [original BIP (Bitcoin Improvement Proposal)](https://github.com/Roasbeef/bips/blob/master/gcs_light_client.mediawiki)
@@ -10,7 +12,7 @@ and [the Olaoluwa Osuntokun's reference implementation](https://github.com/Roasb
 
 ## Privacy considerations
 Using client-side filters (GCS) instead of server-side filter for a cryptocurrency light wallet improves the user
-privacy given that servers cannot infer (at least no so easily) the transactions in which he is interestd on. This project 
+privacy given that servers cannot infer (at least no so easily) the transactions in which he is interestd on. This project
 will be used as part of the [privacy-oriented HiddenWallet](https://github.com/nopara73/HiddenWallet) Bitcoin wallet project.
 
 ## How to use it
@@ -47,13 +49,13 @@ Assert.IsFalse(filter.Match(Encoding.ASCII.GetBytes("Madrid"), key));
 [![QR Code](http://i.imgur.com/grc5fBP.png)](https://www.smartbit.com.au/address/186n7me3QKajQZJnUsVsezVhVrSwyFCCZ)
 
 ## Building From Source Code  
-  
+
 ### Requirements:  
 - [Git](https://git-scm.com/downloads)  
 - [.NET Core](https://www.microsoft.com/net/core)  
-  
+
 ### Step By Step
-  
+
 1. `git clone https://github.com/lontivero/gcs.git`
 2. `cd gcs`  
 3. `dotnet restore`  
