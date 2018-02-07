@@ -3,15 +3,14 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26730.3
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gcs", "src\gcs.csproj", "{58B76F47-F92C-408C-BE39-1231BC7E87E4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gcs.core", "src\gcs.core.csproj", "{9C30607C-7402-4F9B-9CBD-2989B862893E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gcs.UnitTests", "tests\gcs.UnitTests.csproj", "{6EEC7ECC-B83E-410A-87A5-2BE345D0FB52}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gcs.UnitTests.core", "tests\gcs.UnitTests.core.csproj", "{C8F945AF-3665-4385-980D-9AD26D343218}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documents", "Documents", "{1107131A-33D9-4AEE-97DA-1C5B115CCFF1}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
 		.gitignore = .gitignore
-		.travis.yml = .travis.yml
 		LICENSE = LICENSE
 		PushNuget.ps1 = PushNuget.ps1
 		README.md = README.md
@@ -23,14 +22,14 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{58B76F47-F92C-408C-BE39-1231BC7E87E4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{58B76F47-F92C-408C-BE39-1231BC7E87E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{58B76F47-F92C-408C-BE39-1231BC7E87E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{58B76F47-F92C-408C-BE39-1231BC7E87E4}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6EEC7ECC-B83E-410A-87A5-2BE345D0FB52}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6EEC7ECC-B83E-410A-87A5-2BE345D0FB52}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6EEC7ECC-B83E-410A-87A5-2BE345D0FB52}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6EEC7ECC-B83E-410A-87A5-2BE345D0FB52}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9C30607C-7402-4F9B-9CBD-2989B862893E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9C30607C-7402-4F9B-9CBD-2989B862893E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9C30607C-7402-4F9B-9CBD-2989B862893E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9C30607C-7402-4F9B-9CBD-2989B862893E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C8F945AF-3665-4385-980D-9AD26D343218}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C8F945AF-3665-4385-980D-9AD26D343218}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C8F945AF-3665-4385-980D-9AD26D343218}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C8F945AF-3665-4385-980D-9AD26D343218}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
