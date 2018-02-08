@@ -77,7 +77,7 @@ namespace GolombCodeFilterSet
 				values.Add(value);
 			});
 
-			var ret = new List<ulong>(values);
+			var ret = values.ToList();
 			ret.Sort();
 			return ret;
 		}
