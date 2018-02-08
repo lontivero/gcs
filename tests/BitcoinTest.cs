@@ -1,20 +1,17 @@
 ﻿using GolombCodeFilterSet;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NBitcoin;
+using System;
 using System.Collections.Generic;
-
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace GolombCodedFilterSet.UnitTests
 {
 	[TestClass]
 	public class BitcoinTest
 	{
-		public static void Main()
-		{
-			var x = new BitcoinTest();
-			x.PerformanceTestWithRealData();
-		}
-
 		[TestMethod]
 		public void PerformanceTestWithRealData()
 		{
@@ -22,10 +19,7 @@ namespace GolombCodedFilterSet.UnitTests
 
 			// The algorhytm must approximately check for 2 million addresses within 700 blocks, assumbing blocks are about 700MB.
 			// These numbers are based on the sample taken from block height 407000 to 407701.
-			// var numberOfElements = 2000000;
-			// var numberOfCheckAgainst = 1000; // Estimate that our user will have 1000 addresses.
-
-			var numberOfElements = 200000;
+			var numberOfElements = 2000000;
 			var numberOfCheckAgainst = 1000; // Estimate that our user will have 1000 addresses.
 
 			// <--- PROBLEM --->
