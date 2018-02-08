@@ -93,6 +93,10 @@ ipch/
 *.vspx
 *.sap
 
+# Jetbrains profiler
+*.dtp
+*.DotSettings
+
 # TFS 2012 Local Workspace
 $tf/
 

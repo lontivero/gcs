@@ -3,150 +3,83 @@ using System.Collections;
 
 namespace GolombCodeFilterSet
 {
-	class BitStream
+	// Provides a view of an array of bits as a stream of bits
+	internal class BitStream
 	{
-		private BitArray _buffer;
-		private int _readPos;
-		private int _writePos;
-		private int _count;
+		private readonly BitArray _buffer;
+		private int _position;
 
-		public BitStream()
-			:this(new BitArray(0))
+		internal int Position
 		{
-		}
-
-		public BitStream(byte[] data)
-			: this( new BitArray(data))
-		{
+			get => _position;
+			set => _position = value;
 		}
 
 		public BitStream(BitArray bitArray)
 		{
 			_buffer = bitArray;
-			_readPos = 0;
-			_writePos = 0;
-			_count = _buffer.Length;
+			_position = 0;
 		}
 
 		public bool ReadBit()
 		{
-			return _buffer[_readPos++];
-		}
-
-		public byte ReadByte()
-		{
-			var ret = (byte) 0;
-			ret |= (byte)((_buffer[_readPos++] ? 1 : 0) << 7);
-			ret |= (byte)((_buffer[_readPos++] ? 1 : 0) << 6);
-			ret |= (byte)((_buffer[_readPos++] ? 1 : 0) << 5);
-			ret |= (byte)((_buffer[_readPos++] ? 1 : 0) << 4);
-			ret |= (byte)((_buffer[_readPos++] ? 1 : 0) << 3);
-			ret |= (byte)((_buffer[_readPos++] ? 1 : 0) << 2);
-			ret |= (byte)((_buffer[_readPos++] ? 1 : 0) << 1);
-			ret |= (byte)((_buffer[_readPos++] ? 1 : 0) << 0);
-
-			return ret;
+			return _buffer[_position++];
 		}
 
 		public ulong ReadBits(int count)
 		{
-			var val = 0UL;
-			while (count >= 8)
-			{
-				val <<= 8;
-				var b = ReadByte();
-				val |= (ulong) b;
-				count -= 8;
-			}
-
-			while (count > 0)
-			{
-				val <<= 1;
-				val |= _buffer[_readPos++] ? 1UL : 0UL; // ReadBit()
-				count--;
-			}
-			return val;
+			var ret = _buffer.GetBits(_position, count);
+			_position += count;
+			return ret;
 		}
 
 		public void WriteBit(bool bit)
 		{
-			if (_count == _writePos)
+			if (_buffer.Length == _position)
 			{
-				_count = (_count * 2) + 1;
-				_buffer.Length = _count;
+				_buffer.Length++;
 			}
 
-			_buffer[_writePos++] = bit;
+			_buffer[_position++] = bit;
 		}
 
 		public void WriteBits(ulong data, byte count)
 		{
-			data <<= (64 - count);
-			while (count >= 8)
-			{
-				var byt = (byte) (data >> (64 - 8));
-				WriteByte(byt);
-
-				data <<= 8;
-				count -= 8;
-			}
-
-			while (count > 0)
-			{
-				var bit = data >> (64 - 1);
-				WriteBit(bit == 1);
-				data <<= 1;
-				count--;
-			}
-		}
-
-		public void WriteByte(byte b)
-		{
-			if (_count  <= _writePos + 8)
-			{
-				_count += 8;
-				_buffer.Length = _count;
-			}
-
-			WriteBit((b & (1 << 7)) != 0);
-			WriteBit((b & (1 << 6)) != 0);
-			WriteBit((b & (1 << 5)) != 0);
-			WriteBit((b & (1 << 4)) != 0);
-			WriteBit((b & (1 << 3)) != 0);
-			WriteBit((b & (1 << 2)) != 0);
-			WriteBit((b & (1 << 1)) != 0);
-			WriteBit((b & (1 << 0)) != 0);
+			_buffer.Length += count;
+			_buffer.SetBits(_position, data, count);
+			_position += count;
 		}
 
 		public byte[] ToByteArray()
 		{
-			var byteArray = new byte[(_writePos  + (_writePos-1)) / 8];
+			var byteArray = new byte[(_position + (_position - 1)) / 8];
 			_buffer.CopyTo(byteArray, 0);
 			return byteArray;
 		}
 	}
 
-	class GRCodedStreamWriter
+
+	internal class GRCodedStreamWriter
 	{
-		private BitStream _stream;
-		private byte _P;
-		private ulong _modP;
+		private readonly BitStream _stream;
+		private readonly byte _p;
+		private readonly ulong _modP;
 		private ulong _lastValue;
 
-		public GRCodedStreamWriter(BitStream stream, byte P)
+		public GRCodedStreamWriter(BitStream stream, byte p)
 		{
 			_stream = stream;
-			_P = P;
-			_modP = (1UL << P);
+			_p = p;
+			_modP = (1UL << p);
 			_lastValue = 0UL;
 		}
 
-		public void Write(ulong value)
+		public int Write(ulong value)
 		{
 			var diff = value - _lastValue;
 
 			var remainder = diff & (_modP - 1);
-			var quotient = (diff - remainder) >> _P;
+			var quotient = (diff - remainder) >> _p;
 
 			while (quotient > 0)
 			{
@@ -154,30 +87,30 @@ namespace GolombCodeFilterSet
 				quotient--;
 			}
 			_stream.WriteBit(false);
-			_stream.WriteBits(remainder, _P);
+			_stream.WriteBits(remainder, _p);
 			_lastValue = value;
+			return _stream.Position;
 		}
 	}
 
-	class GRCodedStreamReader
+	internal class GRCodedStreamReader
 	{
-		private BitStream _stream;
-		private byte _P;
-		private ulong _modP;
+		private readonly BitStream _stream;
+		private readonly byte _p;
+		private readonly ulong _modP;
 		private ulong _lastValue;
 
-		public GRCodedStreamReader(BitStream stream, byte P)
+		public GRCodedStreamReader(BitStream stream, byte p, ulong lastValue)
 		{
 			_stream = stream;
-			_P = P;
-			_modP = (1UL << P);
-			_lastValue = 0UL;
+			_p = p;
+			_modP = (1UL << p);
+			_lastValue = lastValue;
 		}
 
 		public ulong Read()
 		{
-			var currentValue = ReadUInt64();
-			currentValue += _lastValue;
+			var currentValue = _lastValue + ReadUInt64();
 			_lastValue = currentValue;
 			return currentValue;
 		}
@@ -192,7 +125,7 @@ namespace GolombCodeFilterSet
 				bit = _stream.ReadBit();
 			}
 
-			var remainder = _stream.ReadBits(_P);
+			var remainder = _stream.ReadBits(_p);
 			var value = (count * _modP) + remainder;
 			return value;
 		}
