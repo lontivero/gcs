@@ -6,17 +6,31 @@ using System.Threading.Tasks;
 
 namespace GolombCodeFilterSet
 {
-	// Implements a Golomb-coded set to be use in the creation of client-side filter
-	// for a new kind Bitcoin light clients. This code is based on the BIP:
-	// https://github.com/Roasbeef/bips/blob/master/gcs_light_client.mediawiki
+	/// <summary>
+	/// Implements a Golomb-coded set to be use in the creation of client-side filter
+	/// for a new kind Bitcoin light clients. This code is based on the BIP:
+	/// https://github.com/Roasbeef/bips/blob/master/gcs_light_client.mediawiki
+	/// </summary>
 	public class GCSFilter
 	{
-		public byte P { get; internal set; }
-		public int N { get; internal set; }
-		public ulong ModulusP { get; internal set; }
-		public ulong ModulusNP { get; internal set; }
-		public BitArray Data { get; internal set; }
-		
+		public byte P { get; }
+		public int N { get; }
+		public ulong ModulusP { get;  }
+		public ulong ModulusNP { get; }
+		public BitArray Data { get;  }
+
+		public GCSFilter(BitArray data, byte P, int N)
+		{
+			this.P = P;
+			this.N = N;
+
+
+			var modP = 1UL << P;
+			this.ModulusP = modP;
+			this.ModulusNP = ((ulong) N) * modP;
+			this.Data = data;
+		}
+
 		public static GCSFilter Build(byte[] k, byte P, IEnumerable<byte[]> data)
 		{
 			if (P == 0x00)
@@ -26,36 +40,29 @@ namespace GolombCodeFilterSet
 			if (data == null || !bytesData.Any())
 				throw new ArgumentException("data can not be null or empty array", nameof(data));
 
-			var modP = 1UL << P;
 
 			var hs = ConstructHashedSet(P, k, bytesData);
 			var filterData = Compress(hs, P);
 			var N = bytesData.Length;
 
-			return new GCSFilter
-			{
-				P = P,
-				N = N,
-				ModulusP = modP,
-				ModulusNP = ((ulong)N) * modP,
-				Data = filterData
-			};
+			return new GCSFilter(filterData, P, N);
 		}
+
 
 		internal static List<ulong> ConstructHashedSet(byte P, byte[] key, IEnumerable<byte[]> data)
 		{
-			// N the number of items to be inserted into the set
+			// N the number of items to be inserted into the set.
 			var dataArrayBytes = data as byte[][] ?? data.ToArray();
 			var N = dataArrayBytes.Count();
 
-			// The list of data item hashes
+			// The list of data item hashes.
 			var values = new ConcurrentBag<ulong>();
 			var modP = 1UL << P;
 			var modNP = ((ulong)N) * modP;
 			var nphi = modNP >> 32;
 			var nplo = (ulong)((uint)modNP);
 
-			// Process the data items and calculate the 64 bits hash for each of them
+			// Process the data items and calculate the 64 bits hash for each of them.
 			Parallel.ForEach(dataArrayBytes, item =>
 			{
 				var hash = SipHasher.Hash(key, item);
@@ -126,8 +133,7 @@ namespace GolombCodeFilterSet
 
 		internal static ulong FastReduction(ulong value, ulong nhi, ulong nlo)
 		{
-			// First, we'll spit the item we need to reduce into its higher and
-			// lower bits.
+			// First, we'll spit the item we need to reduce into its higher and lower bits.
 			var vhi = value >> 32;
 			var vlo = (ulong)((uint)value);
 
@@ -146,6 +152,5 @@ namespace GolombCodeFilterSet
 
 			return value;
 		}
-
 	}
 }
