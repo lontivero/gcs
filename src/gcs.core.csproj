@@ -4,4 +4,8 @@
     <TargetFramework>netcoreapp2.0</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="NBitcoin" Version="4.0.0.54" />
+  </ItemGroup>
+
 </Project>
