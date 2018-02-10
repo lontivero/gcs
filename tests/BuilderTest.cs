@@ -15,7 +15,7 @@ namespace GolombCodedFilterSet.UnitTests
 						select Encoding.ASCII.GetBytes(name);
 
 			var key = new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
-			var filter = Filter.Build(key, 0x10, names);
+			var filter = GCSFilter.Build(key, 0x10, names);
 
 			// The filter should match all ther values that were added
 			foreach(var name in names)
