@@ -103,11 +103,12 @@ namespace GolombCodeFilterSet
 			var lastValue1 = 0UL;
 			var lastValue2 = hs[0];
 			var i = 1;
+			var j = 0;
 
 			var bitStream = new BitStream(Data);
 			var sr = new GRCodedStreamReader(bitStream, P, 0);
 
-			while (lastValue1 != lastValue2)
+			while (lastValue1 != lastValue2 && j<N)
 			{
 				if (lastValue1 > lastValue2)
 				{
@@ -127,7 +128,7 @@ namespace GolombCodeFilterSet
 					lastValue1 = val;
 				}
 			}
-			return true;
+			return j<N;
 		}
 
 		internal static ulong FastReduction(ulong value, ulong nhi, ulong nlo)
