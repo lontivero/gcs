@@ -41,19 +41,18 @@ namespace GolombCodeFilterSet
 				throw new ArgumentException("data can not be null or empty array", nameof(data));
 
 
-			var hs = ConstructHashedSet(P, k, bytesData);
-			var filterData = Compress(hs, P);
 			var N = bytesData.Length;
+			var hs = ConstructHashedSet(P, N, k, bytesData);
+			var filterData = Compress(hs, P);
 
 			return new GCSFilter(filterData, P, N);
 		}
 
 
-		internal static List<ulong> ConstructHashedSet(byte P, byte[] key, IEnumerable<byte[]> data)
+		internal static List<ulong> ConstructHashedSet(byte P, int N, byte[] key, IEnumerable<byte[]> data)
 		{
 			// N the number of items to be inserted into the set.
 			var dataArrayBytes = data as byte[][] ?? data.ToArray();
-			var N = dataArrayBytes.Count();
 
 			// The list of data item hashes.
 			var values = new ConcurrentBag<ulong>();
@@ -99,7 +98,7 @@ namespace GolombCodeFilterSet
 			if (data == null || !data.Any())
 				throw new ArgumentException("data can not be null or empty array", nameof(data));
 
-			var hs = ConstructHashedSet(P, key, data);
+			var hs = ConstructHashedSet(P, N, key, data);
 
 			var lastValue1 = 0UL;
 			var lastValue2 = hs[0];

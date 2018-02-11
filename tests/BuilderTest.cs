@@ -20,7 +20,7 @@ namespace GolombCodedFilterSet.UnitTests
 			// The filter should match all ther values that were added.
 			foreach(var name in names)
 			{
-				Assert.IsTrue(filter.Match(name, key));
+				Assert.IsTrue(filter.Match(name, key), "did't match " + Encoding.ASCII.GetString(name));
 			}
 
 			// The filter should NOT match any extra value.
