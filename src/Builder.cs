@@ -2,14 +2,13 @@
 using GolombCodeFilterSet;
 using NBitcoin;
 
-namespace gcs.core
+namespace GolombCodeFilterSet
 {
-
 	public class Builder
 	{
 		private const int P = 20;
 
-		public GCSFilter Build(Block block)
+		public GcsFilter Build(Block block)
 		{
 			var key = block.GetHash().ToBytes();
 
@@ -31,7 +30,7 @@ namespace gcs.core
 				}
 			}
 
-			return GCSFilter.Build(key, P, buffer);
+			return GcsFilter.Build(key, P, buffer);
 		}
 	}
 }

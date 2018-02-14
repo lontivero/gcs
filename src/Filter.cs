@@ -9,17 +9,17 @@ namespace GolombCodeFilterSet
 	/// <summary>
 	/// Implements a Golomb-coded set to be use in the creation of client-side filter
 	/// for a new kind Bitcoin light clients. This code is based on the BIP:
-	/// https://github.com/Roasbeef/bips/blob/master/gcs_light_client.mediawiki
+	/// https://github.com/Roasbeef/bips/blob/master/Gcs_light_client.mediawiki
 	/// </summary>
-	public class GCSFilter
+	public class GcsFilter
 	{
 		public byte P { get; }
 		public int N { get; }
 		public ulong ModulusP { get;  }
 		public ulong ModulusNP { get; }
-		public BitArray Data { get;  }
+		public FastBitArray Data { get;  }
 
-		public GCSFilter(BitArray data, byte P, int N)
+		public GcsFilter(FastBitArray data, byte P, int N)
 		{
 			this.P = P;
 			this.N = N;
@@ -31,7 +31,7 @@ namespace GolombCodeFilterSet
 			this.Data = data;
 		}
 
-		public static GCSFilter Build(byte[] k, byte P, IEnumerable<byte[]> data)
+		public static GcsFilter Build(byte[] k, byte P, IEnumerable<byte[]> data)
 		{
 			if (P == 0x00)
 				throw new ArgumentException("P cannot be zero", nameof(P));
@@ -45,7 +45,7 @@ namespace GolombCodeFilterSet
 			var hs = ConstructHashedSet(P, N, k, bytesData);
 			var filterData = Compress(hs, P);
 
-			return new GCSFilter(filterData, P, N);
+			return new GcsFilter(filterData, P, N);
 		}
 
 
@@ -74,9 +74,9 @@ namespace GolombCodeFilterSet
 			return ret;
 		}
 
-		private static BitArray Compress(List<ulong> values, byte P)
+		private static FastBitArray Compress(List<ulong> values, byte P)
 		{
-			var bitArray = new BitArray();
+			var bitArray = new FastBitArray();
 			var bitStream = new BitStream(bitArray);
 			var sw = new GRCodedStreamWriter(bitStream, P);
 

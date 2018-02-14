@@ -3,7 +3,6 @@ using GolombCodeFilterSet;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 
 
 namespace GolombCodedFilterSet.UnitTests
@@ -34,7 +33,7 @@ namespace GolombCodedFilterSet.UnitTests
 			var random = new Random();
 			var sw = new Stopwatch();
 
-			var blocks = new List<(GCSFilter, List<byte[]>)>(blockCount);
+			var blocks = new List<(GcsFilter, List<byte[]>)>(blockCount);
 			for (var i = 0; i < blockCount; i++)
 			{
 				var txouts = new List<byte[]>(txoutCountPerBlock);
@@ -46,7 +45,7 @@ namespace GolombCodedFilterSet.UnitTests
 				}
 
 				sw.Start();
-				var filter = GCSFilter.Build(key, P, txouts);
+				var filter = GcsFilter.Build(key, P, txouts);
 				sw.Stop();
 
 				blocks.Add((filter, txouts));

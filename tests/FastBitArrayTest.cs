@@ -13,7 +13,7 @@ namespace GolombCodedFilterSet.UnitTests
 		{
 			// 1 1 1 0 1 0 1 1 - 1 0 1 0 1 0 1 1 - 1 0 1 0 1 1 1 0 - 1 0 1 0 1 1 1 0 
 			// 1 0 1 1 1 0 1 0 
-			var barr = new BitArray();
+			var barr = new FastBitArray();
 			barr.Length = 50;
 			for (int i = 0; i < 40; i++)
 			{
@@ -41,7 +41,7 @@ namespace GolombCodedFilterSet.UnitTests
 		[TestMethod]
 		public void SetRandomBitsTest()
 		{
-			var barr = new BitArray(new byte[0]);
+			var barr = new FastBitArray(new byte[0]);
 			barr.Length = 150;
 			var values = new List<int>();
 			var lengths = new List<int>();
@@ -73,7 +73,7 @@ namespace GolombCodedFilterSet.UnitTests
 		[TestMethod]
 		public void SetBitAndGetBitsTest()
 		{
-			var barr = new BitArray(new byte[0]);
+			var barr = new FastBitArray(new byte[0]);
 			barr.Length = 150;
 
 			var j = true;
@@ -110,18 +110,45 @@ namespace GolombCodedFilterSet.UnitTests
 
 		public void SetBitsBigEndianTest()
 		{
-			var barr = new BitArray(new byte[0]);
+			var barr = new FastBitArray(new byte[0]);
 			barr.Length = 5;
 			barr.SetBits(0, 14, 4);
 			var val = barr.GetBits(0, 4);
 
-			barr = new BitArray(new byte[0]);
+			barr = new FastBitArray(new byte[0]);
 			barr.Length = 5;
 			barr.SetBit(0, false);
 			barr.SetBit(1, true);
 			barr.SetBit(2, true);
 			barr.SetBit(3, true);
 			val = barr.GetBits(0, 4);
+		}
+
+		public void ReconstructionTest()
+		{
+			var arr = new byte[] {1, 2, 3, 4};
+			var b = new FastBitArray(arr);
+			var arr2 = b.ToByteArray();
+			Assert.AreEqual(arr.Length, arr2.Length);
+			Assert.AreEqual(arr[0], arr2[0]);
+			Assert.AreEqual(arr[arr.Length-1], arr2[arr2.Length-1]);
+			Assert.AreEqual(4 * 8, b.Length);
+
+			b.Length++;
+			Assert.AreEqual((4 * 8) + 1, b.Length);
+			arr2 = b.ToByteArray();
+			Assert.AreEqual(arr[0], arr2[0]);
+			Assert.AreEqual(0, arr2[arr2.Length - 1]);
+			b.SetBit(4*8, true);
+			arr2 = b.ToByteArray();
+			Assert.AreEqual(arr[0], arr2[0]);
+			Assert.AreEqual(1, arr2[arr2.Length - 1]);
+
+			var b2 = new FastBitArray(arr2);
+			var arr3 = b2.ToByteArray();
+			Assert.AreEqual(arr2.Length, arr3.Length);
+			Assert.AreEqual(arr2[0], arr3[0]);
+			Assert.AreEqual(arr2[arr2.Length - 1], arr3[arr3.Length - 1]);
 		}
 	}
 }

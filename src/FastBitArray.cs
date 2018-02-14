@@ -3,17 +3,17 @@
 namespace GolombCodeFilterSet
 {
 	/// <summary> Manages an array of bits allowing making bit-level operations as a big array of bits. </summary>
-	public sealed class BitArray
+	public sealed class FastBitArray
 	{
 		private uint[] _buffer;
 		private int _length;
 
-		public BitArray()
+		public FastBitArray()
 			: this(new byte[0]) 
 		{
 		}
 
-		public BitArray(byte[] bytes)
+		public FastBitArray(byte[] bytes)
 		{
 			if (bytes == null)
 				throw new ArgumentNullException(nameof(bytes));
@@ -34,20 +34,14 @@ namespace GolombCodeFilterSet
 				                | (uint)(bytes[num2 + 3] & 255) << 24);
 				num2 += 4;
 			}
-			switch (bytes.Length - num2)
-			{
-				case 1:
-					_buffer[num] |= (uint)(bytes[num2] & 255);
-					return;
-				case 2:
+
+			var diff = bytes.Length - num2;
+			if(diff > 0)
+					_buffer[num] |= (uint)(bytes[num2 + 0] & 255);
+			if(diff > 1)
 					_buffer[num] |= (uint)(bytes[num2 + 1] & 255) << 8;
-					return;
-				case 3:
-					_buffer[num] = (uint)(bytes[num2 + 2] & 255) << 16;
-					break;
-				default:
-					return;
-			}
+			if (diff > 2)
+					_buffer[num] |= (uint)(bytes[num2 + 2] & 255) << 16;
 		}
 
 		public bool this[int index]
@@ -135,7 +129,7 @@ namespace GolombCodeFilterSet
 			}
 		}
 
-		private static int GetArrayLength(int n, int div)
+		internal static int GetArrayLength(int n, int div)
 		{
 			if (n <= 0)
 			{
@@ -182,6 +176,13 @@ namespace GolombCodeFilterSet
 			{
 				array3[index + j] = ((_buffer[j / 32] >> j % 32 & 1) != 0);
 			}
+		}
+
+		public byte[] ToByteArray()
+		{
+			var bytes = new byte[GetArrayLength(_length, 8)];
+			CopyTo(bytes, 0);
+			return bytes;
 		}
 	}
 }

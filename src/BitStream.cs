@@ -6,7 +6,7 @@ namespace GolombCodeFilterSet
 	/// <summary> Provides a view of an array of bits as a stream of bits. </summary>
 	internal class BitStream
 	{
-		private readonly BitArray _buffer;
+		private readonly FastBitArray _buffer;
 		private int _position;
 
 		internal int Position
@@ -15,7 +15,7 @@ namespace GolombCodeFilterSet
 			set => _position = value;
 		}
 
-		public BitStream(BitArray bitArray)
+		public BitStream(FastBitArray bitArray)
 		{
 			_buffer = bitArray;
 			_position = 0;
@@ -45,16 +45,12 @@ namespace GolombCodeFilterSet
 
 		public void WriteBits(ulong data, byte count)
 		{
-			_buffer.Length += count;
+			if (_buffer.Length < _position + count)
+			{
+				_buffer.Length = _position + count;
+			}
 			_buffer.SetBits(_position, data, count);
 			_position += count;
-		}
-
-		public byte[] ToByteArray()
-		{
-			var byteArray = new byte[(_position + (_position - 1)) / 8];
-			_buffer.CopyTo(byteArray, 0);
-			return byteArray;
 		}
 	}
 

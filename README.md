@@ -1,17 +1,17 @@
-# gcs - Golomb compressed set
+# Gcs - Golomb compressed set
 
-[![Build Status](https://travis-ci.org/lontivero/gcs.svg?branch=master)](https://travis-ci.org/lontivero/gcs)
+[![Build Status](https://travis-ci.org/lontivero/Gcs.svg?branch=master)](https://travis-ci.org/lontivero/Gcs)
 
-Library for creating and querying Golomb Compressed Sets (GCS), a statistical
+Library for creating and querying Golomb Compressed Sets (Gcs), a statistical
 compressed data-structure. The idea behind this implementation is using it in a new
-kind of Bitcoin light client, similar to SPV clients, that uses GCS instead of bloom
+kind of Bitcoin light client, similar to SPV clients, that uses Gcs instead of bloom
 filters.
 
-This projects is based on the [original BIP (Bitcoin Improvement Proposal)](https://github.com/Roasbeef/bips/blob/master/gcs_light_client.mediawiki)
-and [the Olaoluwa Osuntokun's reference implementation](https://github.com/Roasbeef/btcutil/tree/gcs/gcs)
+This projects is based on the [original BIP (Bitcoin Improvement Proposal)](https://github.com/Roasbeef/bips/blob/master/Gcs_light_client.mediawiki)
+and [the Olaoluwa Osuntokun's reference implementation](https://github.com/Roasbeef/btcutil/tree/Gcs/Gcs)
 
 ## Privacy considerations
-Using client-side filters (GCS) instead of server-side filter for a cryptocurrency light wallet improves the user
+Using client-side filters (Gcs) instead of server-side filter for a cryptocurrency light wallet improves the user
 privacy given that servers cannot infer (at least no so easily) the transactions in which he is interestd on. This project
 will be used as part of the [privacy-oriented HiddenWallet](https://github.com/nopara73/HiddenWallet) Bitcoin wallet project.
 
@@ -56,8 +56,8 @@ Assert.IsFalse(filter.Match(Encoding.ASCII.GetBytes("Madrid"), key));
 
 ### Step By Step
 
-1. `git clone https://github.com/lontivero/gcs.git`
-2. `cd gcs`  
+1. `git clone https://github.com/lontivero/Gcs.git`
+2. `cd Gcs`  
 3. `dotnet restore`  
 4. `dotnet build -c Release -r win-x64`. Depending on your platform replace `win-x64` with `win-x86`, `linux-x64` or `osx-x64`.  
 

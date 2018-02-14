@@ -9,8 +9,8 @@ matrix:
     - os: osx
 
 install:
-  - dotnet restore gcs.core.sln
+  - dotnet restore Gcs.core.sln
 
 script:
- - dotnet build gcs.core.sln
- - dotnet test ./tests/gcs.UnitTests.core.csproj
+ - dotnet build Gcs.core.sln
+ - dotnet test ./tests/Gcs.UnitTests.core.csproj
